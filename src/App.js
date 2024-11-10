@@ -7,39 +7,46 @@ import Home from "./pages/Home";
 import ProtectedRouter from "./middleware/ProtectedRouter";
 import nonAuthRoute from "./routes/non-auth-route";
 import SuspenseLayout from "./components/SuspenseLayout";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import NotFound from "./pages/NotFound";
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<SuspenseLayout />}>
-          <Route path="/" element={<Home />} />
+    <>
+      <BrowserRouter>
+        <ToastContainer autoClose={3000} />
+        <Routes>
+          <Route element={<SuspenseLayout />}>
+            <Route path="/" element={<Home />} />
 
-          <Route element={<ProtectedRouter />}>
-            <Route>
-              {navigationRoutes.map((route, index) => (
-                <Route key={index} path={route.path} element={route.element}>
-                  {route.children &&
-                    route.children.map((child, childIndex) => (
-                      <Route
-                        key={childIndex}
-                        path={child.path}
-                        element={child.element}
-                      />
-                    ))}
-                </Route>
-              ))}
+            <Route element={<ProtectedRouter />}>
+              <Route>
+                {navigationRoutes.map((route, index) => (
+                  <Route key={index} path={route.path} element={route.element}>
+                    {route.children &&
+                      route.children.map((child, childIndex) => (
+                        <Route
+                          key={childIndex}
+                          path={child.path}
+                          element={child.element}
+                        />
+                      ))}
+                  </Route>
+                ))}
+              </Route>
             </Route>
-          </Route>
 
-          {nonAuthRoute.map((route, index) => {
-            return (
-              <Route key={index} path={route.path} element={route.element} />
-            );
-          })}
-        </Route>
-      </Routes>
-    </BrowserRouter>
+            {nonAuthRoute.map((route, index) => {
+              return (
+                <Route key={index} path={route.path} element={route.element} />
+              );
+            })}
+
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 

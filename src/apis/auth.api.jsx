@@ -11,6 +11,13 @@ const authApi = {
 
     axios.postRequest({ path: login, payload, success, error });
   },
+  handleUserName: ({ payload, success, error }) => {
+    const {
+      auth: { CheckUserName },
+    } = apiPath;
+
+    axios.postRequest({ path: CheckUserName, payload, success, error });
+  },
   handleLogout: ({ success, error }) => {
     const {
       auth: { logout },
@@ -28,6 +35,12 @@ const authApi = {
       auth: { verifySession },
     } = apiPath;
     axios.postRequest({ path: verifySession, payload, success, error, final });
+  },
+  sendVerificationEmail:({payload,success,error,final})=>{
+    const {
+      auth: { sendVerifyEmail },
+    } = apiPath;
+    axios.postRequest({ path: sendVerifyEmail, payload, success, error, final });
   },
   handleVerificationEmail: ({ payload, verify_token, success, error }) => {
     const {

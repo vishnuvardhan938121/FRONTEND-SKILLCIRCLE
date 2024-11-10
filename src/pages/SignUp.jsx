@@ -1,8 +1,123 @@
-import React from "react";
+import React ,{useState,useEffect}from "react";
 import logo from "../assets/images/logo.png";
 import Header from "../components/Header";
+import { ReactComponent as SigUpLogo } from "../assets/signUp.svg";
+import authApi from "../apis/auth.api";
+import { toast } from "react-toastify";
+
+
+// Debounce function to control API call frequency
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 const SignUp = () => {
+
+  const [email,setEmail]=useState();
+  const [username,setUserName]=useState();
+  const [password,setPassword] = useState();
+
+
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
+
+  // Debounce the username input to avoid excessive API calls
+  const debouncedUsername = useDebounce(username, 100);
+
+  // Check username availability whenever debounced username changes
+  useEffect(() => {
+    if (debouncedUsername && username) {
+      authApi.handleUserName({
+        payload: { username: debouncedUsername },
+        success: (res) => {
+          console.log(res)
+          setIsUsernameAvailable(res.data.isAvailable);
+          if (!res.data.isAvailable) {
+            toast.error("Username is already taken", {
+              position: "top-center",
+              autoClose: 2000,
+            });
+          }
+        },
+        error: (err) => {
+    
+          toast.error(err.response.data.message, {
+            position: "top-center",
+            autoClose: 2000,
+          });
+        },
+      });
+    }
+  }, [debouncedUsername]);
+
+
+  const handleSubmit=(e)=>{
+    e.preventDefault();
+
+    let hasError = false;
+
+    if (!email) {
+      toast.error("Email is required", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      hasError = true;
+    }
+    
+    if (!username) {
+      toast.error("Username is required", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      hasError = true;
+    }
+
+    if (isUsernameAvailable === false) {
+      toast.error("Please choose a different username", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      hasError = true;
+    }
+
+    if (!password) {
+      toast.error("Password is required", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    authApi.handleRegister({
+      payload:{
+        username,
+        email,
+        password
+      },
+      success:(res)=>{
+        toast.success("SuccessFully Registered", {
+          position: "top-center",
+          autoClose: 2000,
+        });
+      },
+      error:(err)=>{
+        console.log(err)
+        toast.error(err.response.data.message, {
+          position: "top-center",
+          autoClose: 2000,
+        });
+      }
+    })
+  }
+  
   return (
     <div>
       <Header isScrolled={true} />
@@ -48,17 +163,29 @@ const SignUp = () => {
                 </div>
 
                 <div class="mx-auto max-w-xs">
+
                   <input
                     class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
                     type="email"
                     placeholder="Email"
+                    value={email}
+                    onChange={(e)=>setEmail(e.target.value)}
+                  />
+                  <input
+                    class="w-full mt-5 px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
+                    type="username"
+                    placeholder="User Name"
+                    value={username}
+                    onChange={(e)=>setUserName(e.target.value)}
                   />
                   <input
                     class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                     type="password"
                     placeholder="Password"
+                    value={password}
+                    onChange={(e)=>setPassword(e.target.value)}
                   />
-                  <button class="mt-5 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
+                  <button class="mt-5 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none" onClick={handleSubmit}>
                     <svg
                       class="w-6 h-6 -ml-2"
                       fill="none"
@@ -88,13 +215,9 @@ const SignUp = () => {
             </div>
           </div>
           <div class="flex-1 bg-indigo-100 text-center hidden lg:flex">
-            <div
-              class="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-              style={{
-                backgroundImage:
-                  "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
-              }}
-            ></div>
+            <div class="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat">
+              <SigUpLogo />
+            </div>
           </div>
         </div>
       </div>

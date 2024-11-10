@@ -1,6 +1,68 @@
-import React from "react";
+import React, { useState } from "react";
+import authApi from "../apis/auth.api";
+import { toast } from "react-toastify";
+import currentUserState from "../store/user.store";
+import { useRecoilState } from "recoil";
+import { useNavigate } from "react-router-dom";
 
 const LoginPopup = ({ isOpen, onClose, userType }) => {
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+
+  const [currentLoggedInUser, setCurrentLoggedInUser] =
+  useRecoilState(currentUserState);
+
+  const navigate=useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    let hasError = false;
+
+    if (!email) {
+      toast.error("Email is required", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      hasError = true;
+    }
+    if (!password) {
+      toast.error("Password is required", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    authApi.handleLogin({
+      payload: {
+        email,
+        password,
+      },
+      success: (res) => {
+        toast.success("SuccessFully Logged", {
+          position: "top-center",
+          autoClose: 2000,
+        });
+        setCurrentLoggedInUser({
+          isActive:true,
+          isLoggedIn:true,
+          
+        })
+        navigate("/dashBoard")
+      },
+      error: (err) => {
+        console.log(err);
+        toast.error(err.response.data.message, {
+          position: "top-center",
+          autoClose: 2000,
+        });
+      },
+    });
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -57,13 +119,15 @@ const LoginPopup = ({ isOpen, onClose, userType }) => {
             </div>
 
             {/* Email/Password Form */}
-            <form className="w-full">
+            <form className="w-full" onSubmit={handleSubmit}>
               <input
                 name="email"
                 type="email"
                 required
                 className="block w-full rounded-lg border border-gray-300 px-3 py-2 placeholder:text-gray-400 focus:ring-2 focus:ring-black"
                 placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
               <input
                 name="password"
@@ -71,6 +135,8 @@ const LoginPopup = ({ isOpen, onClose, userType }) => {
                 required
                 className="mt-2 block w-full rounded-lg border border-gray-300 px-3 py-2 placeholder:text-gray-400 focus:ring-2 focus:ring-black"
                 placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <p className="mb-3 mt-2 text-sm text-gray-500">
                 <a

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import landing from "../assets/images/skill-circle-landing.jpg";
-import logo from "../assets/images/logo.png";
 import Footer from "../components/Footer";
-import Contact from "../components/Contact";
 import Reviews from "../components/Reviews";
 import TopRatedCarousel from "../components/TopRatedCarousel";
 import Header from "../components/Header";
 import Features from "../components/Features";
+import { Link} from "react-router-dom";
 
 const Home = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -45,22 +44,22 @@ const Home = () => {
             Your Service Hub, Your Way
           </h3>
 
-          <a
-            href="#"
+          <Link
+            to="/contact"
             className="boxBtn bg-transparent border-4 border-white rounded-full px-6 py-3 uppercase hover:bg-white hover:text-black transition-all duration-500"
           >
             Contact Us
-          </a>
+          </Link>
         </section>
       </div>
 
       <TopRatedCarousel />
 
       <Features />
+      
       <Reviews />
       <Footer />
-
-      {/* <Contact/> */}
+          
     </>
   );
 };

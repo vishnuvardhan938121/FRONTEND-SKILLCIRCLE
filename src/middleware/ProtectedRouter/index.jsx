@@ -19,10 +19,12 @@ export default function ProtectedRouter() {
       success: ({ data }) => {
         const userData = {
           isLoggedIn: true,
-          Id: data.data.staffId,
-          name: data.data.fullName,
+          Id: data.data.userId,
+          name: data.data.username,
           email: data.data.email,
           mobile: data.data.mobile,
+          isEmailVerified:data.data.isEmailVerified,
+          isOnBoardingCompleted:data.data.isOnBoardingCompleted,
           userType: data.data.role,
           profilePicture:data.data.profilePicture
         };
